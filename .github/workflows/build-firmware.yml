@@ -1,0 +1,27 @@
+name: Build SmartFarm firmware
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: arduino/setup-arduino-cli@v2
+      - name: Install ESP8266 core
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager additional_urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp8266:esp8266
+      - name: Install libraries
+        run: |
+          arduino-cli lib install "PubSubClient" "ArduinoJson" "DHT sensor library" "RTClib" "NTPClient" "WiFiManager"
+      - name: Compile firmware
+        run: arduino-cli compile --fqbn esp8266:esp8266:nodemcuv2 --output-dir build SmartFarm_V6_PRODUCTION.ino
+      - name: Rename binary
+        run: cp build/SmartFarm_V6_PRODUCTION.ino.bin SmartFarm.bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SmartFarm-firmware
+          path: SmartFarm.bin

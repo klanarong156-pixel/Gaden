@@ -1,0 +1,5 @@
+import {applyTopic,RELAYS,state,update} from './state.js';
+const topics=['smartfarm/status/online','smartfarm/device/status','smartfarm/sensor/dht11','smartfarm/emergency/status','smartfarm/config/telegram/status','smartfarm/reminder/status','smartfarm/ai/alert/status',...RELAYS.flatMap(r=>[`smartfarm/relay/${r}/status`,`smartfarm/relay/${r}/timer/status`,`smartfarm/schedule/${r}/status`])];
+export async function connect(){try{const res=await fetch('../api/mqtt/state');if(!res.ok)throw new Error('bridge unavailable');const snapshot=await res.json();Object.entries(snapshot||{}).forEach(([topic,payload])=>applyTopic(topic,String(payload)));update({connected:true});}catch{update({connected:false})}}
+export async function publish(topic,payload){if(!state.connected||state.ota||state.emergency?.active) throw new Error('ควบคุมไม่ได้ขณะอุปกรณ์ไม่พร้อม');const res=await fetch('../api/mqtt/publish',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({topic,payload})});if(!res.ok)throw new Error('ส่งคำสั่งไม่สำเร็จ');return res.json()}
+export {topics};

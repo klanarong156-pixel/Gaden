@@ -1,0 +1,7 @@
+{
+  "name":"gaden-smart-farm",
+  "private":true,
+  "type":"module",
+  "scripts":{"start":"node server/index.mjs","test":"node --test test/*.test.mjs"},
+  "dependencies":{"mqtt":"^5.10.4"}
+}

@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "thaiLanguage": true,
+    "mainLandmark": true,
+    "labelledNavigation": true,
+    "manifest": true,
+    "safeArea": true,
+    "alertButton": true,
+    "dialog": true
+  },
+  "passed": true,
+  "failed": []
+}

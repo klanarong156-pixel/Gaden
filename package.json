@@ -2,6 +2,7 @@
   "name":"gaden-smart-farm",
   "private":true,
   "type":"module",
-  "scripts":{"start":"node server/index.mjs","test":"node --test test/*.test.mjs"},
-  "dependencies":{"mqtt":"^5.10.4"}
+  "scripts":{"start":"node server/index.mjs","build":"node scripts/build.mjs","a11y:audit":"node scripts/a11y-audit.mjs","test":"vitest run","check":"node --check server/index.mjs && node --check dashboard/js/app.js && node --check dashboard/js/state.js && node --check dashboard/js/mqtt.js"},
+  "dependencies":{"mqtt":"^5.10.4"},
+  "devDependencies":{"vitest":"^2.1.4"}
 }

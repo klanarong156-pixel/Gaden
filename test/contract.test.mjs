@@ -1,8 +1,5 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
+import {describe,expect,it} from 'vitest';
 const relays=['pump','zone1','lighthome','lightsala'];
-const overlap=(slots)=>slots.some((a,i)=>slots.some((b,j)=>i<j&&a.on<b.off&&b.on<a.off));
-test('Firmware relay mapping has exactly four supported names',()=>assert.deepEqual(relays,['pump','zone1','lighthome','lightsala']));
-test('schedule overlap is rejected before publish',()=>assert.equal(overlap([{on:'06:00',off:'06:30'},{on:'06:15',off:'07:00'}]),true));
-test('non-overlapping schedules are accepted',()=>assert.equal(overlap([{on:'06:00',off:'06:15'},{on:'06:15',off:'07:00'}]),false));
-test('control is locked when MQTT is offline, OTA is active, or emergency is active',()=>{const locked=(s)=>!s.connected||s.ota||s.emergency;assert.equal(locked({connected:false,ota:false,emergency:false}),true);assert.equal(locked({connected:true,ota:true,emergency:false}),true);assert.equal(locked({connected:true,ota:false,emergency:true}),true);assert.equal(locked({connected:true,ota:false,emergency:false}),false)});
+const overlap=slots=>slots.some((a,i)=>slots.some((b,j)=>i<j&&a.on<b.off&&b.on<a.off));
+const applyRelay=(current,pending,incoming)=>({value:incoming,pending:pending===incoming?undefined:pending,status:pending===incoming?'confirmed':'rejected'});
+describe('Firmware contract',()=>{it('has exactly four supported relay names',()=>expect(relays).toEqual(['pump','zone1','lighthome','lightsala']));it('rejects overlapping schedules',()=>expect(overlap([{on:'06:00',off:'06:30'},{on:'06:15',off:'07:00'}])).toBe(true));it('accepts adjacent non-overlapping schedules',()=>expect(overlap([{on:'06:00',off:'06:15'},{on:'06:15',off:'07:00'}])).toBe(false));it('confirms relay only after matching status arrives',()=>expect(applyRelay('OFF','ON','ON')).toEqual({value:'ON',pending:undefined,status:'confirmed'}));it('rejects relay command when device reports the other state',()=>expect(applyRelay('OFF','ON','OFF')).toEqual({value:'OFF',pending:'ON',status:'rejected'}));it('locks controls offline, OTA and emergency',()=>{const locked=s=>!s.connected||s.ota===true||s.emergency===true;expect(locked({connected:false,ota:false,emergency:false})).toBe(true);expect(locked({connected:true,ota:true,emergency:false})).toBe(true);expect(locked({connected:true,ota:false,emergency:true})).toBe(true);expect(locked({connected:true,ota:false,emergency:false})).toBe(false)})});
